@@ -1,0 +1,102 @@
+<div th:fragment="content">
+    <h3 class="mb-4">Daftar Pendaftaran</h3>
+    <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalTambahPendaftaran">
+        + Tambah Pendaftaran
+    </button>
+
+    <!-- Modal Tambah Pendaftaran -->
+    <div class="modal fade" id="modalTambahPendaftaran" tabindex="-1" aria-labelledby="modalTambahPendaftaranLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form th:action="@{/admin/pendaftaran/tambah}" method="post" class="modal-form">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalTambahPendaftaranLabel">Tambah Pendaftaran</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-2">
+                <label>Siswa</label>
+                <select name="siswaId" class="form-control" required>
+                    <option value="">Pilih Siswa</option>
+                    <option th:each="siswa : ${listSiswa}" th:value="${siswa.id}" th:text="${siswa.nama}"></option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label>Jurusan</label>
+                <select name="jurusanId" class="form-control" required>
+                    <option value="">Pilih Jurusan</option>
+                    <option th:each="jurusan : ${listJurusan}" th:value="${jurusan.id}" th:text="${jurusan.namaJurusan}"></option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label>Jalur</label>
+                <select name="jalurId" class="form-control" required>
+                    <option value="">Pilih Jalur</option>
+                    <option th:each="jalur : ${listJalur}" th:value="${jalur.id}" th:text="${jalur.namaJalur}"></option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-success">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Hapus Pendaftaran -->
+    <div class="modal fade" id="modalDeletePendaftaran" tabindex="-1" aria-labelledby="modalDeletePendaftaranLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="formDeletePendaftaran" method="post" class="modal-form">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalDeletePendaftaranLabel">Konfirmasi Hapus</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" name="id" id="delete-id-pendaftaran">
+              <p>Apakah Anda yakin ingin menghapus pendaftaran berikut?</p>
+              <ul>
+                <li><strong>Nama Siswa:</strong> <span id="delete-namaPendaftaran"></span></li>
+              </ul>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-danger">Hapus</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel Pendaftaran -->
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Nama Siswa</th>
+                <th>NISN</th>
+                <th>Asal Sekolah</th>
+                <th>Jurusan</th>
+                <th>Jalur</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="pendaftaran : ${listPendaftaran}">
+                <td th:text="${pendaftaran.id}"></td>
+                <td th:text="${pendaftaran.siswa != null ? pendaftaran.siswa.namaLengkap : '-'}"></td>
+                <td th:text="${pendaftaran.siswa != null ? pendaftaran.siswa.nisn : '-'}"></td>
+                <td th:text="${pendaftaran.siswa != null ? pendaftaran.siswa.asalSekolah : '-'}"></td>
+                <td th:text="${pendaftaran.jurusan != null ? pendaftaran.jurusan.namaJurusan : '-'}"></td>
+                <td th:text="${pendaftaran.jalur != null ? pendaftaran.jalur.namaJalur : '-'}"></td>
+                <td>
+                    <button class="btn btn-danger btn-sm"
+                        th:attr="data-id=${pendaftaran.id},data-siswa=${pendaftaran.siswa != null ? pendaftaran.siswa.namaLengkap : ''}"
+                        onclick="openDeletePendaftaranModal(this)">Hapus</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

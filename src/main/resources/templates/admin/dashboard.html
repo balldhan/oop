@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f7f7fb; }
+        .sidebar {
+            min-height: 100vh;
+            background: #2d5be3;
+            color: #fff;
+            padding-top: 32px;
+        }
+        .sidebar .nav-link {
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background: #1a2233;
+            color: #fff;
+            border-radius: 6px;
+        }
+        .sidebar .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .content-area {
+            padding: 32px;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .logout-btn {
+            color: #fff;
+            border: 1px solid #fff;
+            border-radius: 6px;
+            padding: 6px 18px;
+            margin-left: 12px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #e74c3c;
+            color: #fff;
+            border-color: #e74c3c;
+        }
+        @media (max-width: 991px) {
+            .sidebar { min-height: auto; }
+            .content-area { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">SIPPDB Admin</a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">Halo, <span th:text="${username}">Admin</span></span>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-lg-2 col-md-3 d-md-block sidebar">
+                <div class="sidebar-title mb-4">Menu Admin</div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/admin/dashboard">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                       <a class="nav-link" href="#" data-url="/admin/siswa/fragment">Siswa</a>
+                    </li>
+                    <li class="nav-item">
+                       <a class="nav-link" href="#" data-url="/admin/jurusan/fragment">Jurusan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-url="/admin/jalur/fragment">Jalur</a>
+                    </li>
+                    <li class="nav-item">
+                       <a class="nav-link" href="#" data-url="/admin/pendaftaran/fragment">Pendaftaran</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- Content -->
+            <main class="col-lg-10 col-md-9 ms-sm-auto content-area">
+                <div id="admin-content">
+                    <!-- Pastikan fragment ini ada dan benar -->
+                    <div th:replace="admin/fragments/dashboard :: content"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+<script>
+let lastFragmentUrl = '/admin/dashboard/fragment'; // default fragment dashboard
+
+function loadAdminContent(url) {
+    if (!url) return;
+    lastFragmentUrl = url;
+    fetch(url)
+        .then(res => {
+            if (!res.ok) throw new Error('Fragment not found: ' + url);
+            return res.text();
+        })
+        .then(html => {
+            document.getElementById('admin-content').innerHTML = html;
+        })
+        .catch(err => {
+            document.getElementById('admin-content').innerHTML =
+                '<div class="alert alert-danger">Gagal memuat fragment: ' + err.message + '</div>';
+        });
+}
+
+// Event listener untuk sidebar
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            const url = this.getAttribute('data-url');
+            if (url) {
+                e.preventDefault();
+                loadAdminContent(url);
+                document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+    });
+});
+
+function openEditJalurModal(btn) {
+    document.getElementById('formEditJalur').action = '/admin/jalur/edit/' + btn.getAttribute('data-id');
+    document.getElementById('edit-id').value = btn.getAttribute('data-id');
+    document.getElementById('edit-namaJalur').value = btn.getAttribute('data-nama');
+    document.getElementById('edit-kuota').value = btn.getAttribute('data-kuota');
+    var modal = new bootstrap.Modal(document.getElementById('modalEditJalur'));
+    modal.show();
+}
+function openDeleteJalurModal(btn) {
+    document.getElementById('formDeleteJalur').action = '/admin/jalur/hapus/' + btn.getAttribute('data-id');
+    document.getElementById('delete-id').value = btn.getAttribute('data-id');
+    document.getElementById('delete-namaJalur').innerText = btn.getAttribute('data-nama');
+    document.getElementById('delete-kuota').innerText = btn.getAttribute('data-kuota');
+    var modal = new bootstrap.Modal(document.getElementById('modalDeleteJalur'));
+    modal.show();
+}
+
+// Siswa
+function openEditSiswaModal(btn) {
+    var form = document.getElementById('formEditSiswa');
+    if (!form) return;
+    form.action = '/admin/siswa/edit/' + btn.getAttribute('data-id');
+    document.getElementById('edit-id-siswa').value = btn.getAttribute('data-id');
+    document.getElementById('edit-namaSiswa').value = btn.getAttribute('data-nama');
+    document.getElementById('edit-nisn').value = btn.getAttribute('data-nisn');
+    var modal = new bootstrap.Modal(document.getElementById('modalEditSiswa'));
+    modal.show();
+}
+function openDeleteSiswaModal(btn) {
+    var form = document.getElementById('formDeleteSiswa');
+    if (!form) return;
+    form.action = '/admin/siswa/hapus/' + btn.getAttribute('data-id');
+    document.getElementById('delete-id-siswa').value = btn.getAttribute('data-id');
+    document.getElementById('delete-namaSiswa').innerText = btn.getAttribute('data-nama');
+    var modal = new bootstrap.Modal(document.getElementById('modalDeleteSiswa'));
+    modal.show();
+}
+
+// Jurusan
+function openEditJurusanModal(btn) {
+    var form = document.getElementById('formEditJurusan');
+    if (!form) return;
+    form.action = '/admin/jurusan/edit/' + btn.getAttribute('data-id');
+    document.getElementById('edit-id-jurusan').value = btn.getAttribute('data-id');
+    document.getElementById('edit-namaJurusan').value = btn.getAttribute('data-nama');
+    var modal = new bootstrap.Modal(document.getElementById('modalEditJurusan'));
+    modal.show();
+}
+function openDeleteJurusanModal(btn) {
+    var form = document.getElementById('formDeleteJurusan');
+    if (!form) return;
+    form.action = '/admin/jurusan/hapus/' + btn.getAttribute('data-id');
+    document.getElementById('delete-id-jurusan').value = btn.getAttribute('data-id');
+    document.getElementById('delete-namaJurusan').innerText = btn.getAttribute('data-nama');
+    var modal = new bootstrap.Modal(document.getElementById('modalDeleteJurusan'));
+    modal.show();
+}
+
+// Pendaftaran
+function openEditPendaftaranModal(btn) {
+    var form = document.getElementById('formEditPendaftaran');
+    if (!form) return;
+    form.action = '/admin/pendaftaran/edit/' + btn.getAttribute('data-id');
+    document.getElementById('edit-id-pendaftaran').value = btn.getAttribute('data-id');
+    document.getElementById('edit-siswa').value = btn.getAttribute('data-siswa');
+    document.getElementById('edit-jurusan').value = btn.getAttribute('data-jurusan');
+    document.getElementById('edit-jalur').value = btn.getAttribute('data-jalur');
+    var modal = new bootstrap.Modal(document.getElementById('modalEditPendaftaran'));
+    modal.show();
+}
+function openDeletePendaftaranModal(btn) {
+    var form = document.getElementById('formDeletePendaftaran');
+    if (!form) return;
+    form.action = '/admin/pendaftaran/hapus/' + btn.getAttribute('data-id');
+    document.getElementById('delete-id-pendaftaran').value = btn.getAttribute('data-id');
+    document.getElementById('delete-namaPendaftaran').innerText = btn.getAttribute('data-siswa');
+    var modal = new bootstrap.Modal(document.getElementById('modalDeletePendaftaran'));
+    modal.show();
+}
+
+// AJAX submit untuk semua form di modal
+document.addEventListener('submit', function(e) {
+    if (e.target.closest('.modal')) {
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        fetch(form.action, {
+            method: form.method,
+            body: data
+        })
+        .then(res => {
+            if (res.ok) {
+                // Tutup modal
+                const modalEl = form.closest('.modal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                // Reload fragment sesuai menu terakhir yang dibuka
+                fetch(lastFragmentUrl)
+                    .then(res => res.text())
+                    .then(html => {
+                        document.getElementById('admin-content').innerHTML = html;
+                    });
+            }
+        });
+    }
+});
+</script>
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

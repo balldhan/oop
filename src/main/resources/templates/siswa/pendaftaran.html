@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Pendaftaran Akun Siswa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f7f7fb; }
+        .form-card {
+            background: #fff;
+            max-width: 900px;
+            margin: 40px auto;
+            border-radius: 18px;
+            box-shadow: 0 6px 32px rgba(44,62,80,0.07);
+            padding: 40px 32px 32px 32px;
+        }
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 32px 0 12px 0;
+            color: #1a2233;
+        }
+        .form-label { font-weight: 500; }
+        .form-check-label { font-weight: 400; }
+        .form-text-danger { color: #e74c3c; font-size: 0.95em; }
+        .btn-primary { background: #2d5be3; border: none; }
+        .btn-primary:hover { background: #1a2233; }
+        .btn-outline-secondary { border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <h2 class="text-center fw-bold mb-2">Pendaftaran Akun SPMB</h2>
+        <p class="text-center text-muted mb-4" style="font-size:1.05em;">
+            Lengkapi data di bawah ini untuk membuat akun dan mengakses sistem.
+        </p>
+        <form th:action="@{/siswa/pendaftaran}" method="post" enctype="multipart/form-data">
+            <!-- Asal Pendaftar & Jenjang -->
+            <div class="row mb-3">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label mb-2">Asal Pendaftar <span class="text-danger">*</span></label><br>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="asalPendaftar" id="dalamKota" value="Dalam Kota" required>
+                        <label class="form-check-label" for="dalamKota">Dalam Kota</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="asalPendaftar" id="luarKota" value="Luar Kota">
+                        <label class="form-check-label" for="luarKota">Luar Kota</label>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="form-label mb-2">Jenjang Yang Dituju <span class="text-danger">*</span></label><br>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="jenjang" id="sd" value="SD" required>
+                        <label class="form-check-label" for="sd">Sekolah Dasar</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="jenjang" id="smp" value="SMP">
+                        <label class="form-check-label" for="smp">Sekolah Menengah Pertama</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informasi Identitas -->
+            <div class="form-section-title">Informasi Identitas</div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Nomor Kartu Keluarga <span class="text-danger">*</span></label>
+                    <input type="text" name="noKK" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Nomor Induk Kependudukan <span class="text-danger">*</span></label>
+                    <input type="text" name="nik" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Nomor Induk Siswa Nasional <span class="text-danger">*</span></label>
+                    <input type="text" name="nisn" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                    <input type="text" name="namaLengkap" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Jenis Kelamin <span class="text-danger">*</span></label><br>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="jenisKelamin" id="laki" value="Laki-laki" required>
+                        <label class="form-check-label" for="laki">Laki - Laki</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="jenisKelamin" id="perempuan" value="Perempuan">
+                        <label class="form-check-label" for="perempuan">Perempuan</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">NPSN Asal Sekolah <span class="text-danger">*</span></label>
+                    <input type="text" name="npsn" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tempat Lahir <span class="text-danger">*</span></label>
+                    <input type="text" name="tempatLahir" class="form-control" required>
+                    <div class="form-text text-danger">* Masukkan Tempat Lahir Sesuai Akta Kelahiran.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tanggal Lahir <span class="text-danger">*</span></label>
+                    <input type="date" name="tanggalLahir" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- Informasi Login -->
+            <div class="form-section-title">Informasi Login</div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Email Aktif <span class="text-danger">*</span></label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Konfirmasi Email Aktif <span class="text-danger">*</span></label>
+                    <input type="email" name="emailKonfirmasi" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Foto Profil</label>
+                    <input type="file" name="fotoProfil" class="form-control" accept="image/png, image/jpeg">
+                    <div class="form-text">* Unggah foto anak (wajah terlihat jelas, format JPG/PNG, maksimal 512KB) sebagai foto profil.</div>
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-6">
+                    <label class="form-label">Kata Sandi <span class="text-danger">*</span></label>
+                    <input type="password" name="password" class="form-control" minlength="8" required>
+                    <div class="form-text">Gunakan 8 karakter atau lebih dengan campuran huruf, angka &amp; simbol.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Konfirmasi Kata Sandi <span class="text-danger">*</span></label>
+                    <input type="password" name="passwordKonfirmasi" class="form-control" minlength="8" required>
+                    <div class="form-text">Gunakan 8 karakter atau lebih dengan campuran huruf, angka &amp; simbol.</div>
+                </div>
+            </div>
+
+            <!-- Tombol -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="/siswa/dashboard" class="btn btn-outline-secondary px-4">Kembali</a>
+                <button type="submit" class="btn btn-primary px-4">Simpan Pendaftaran</button>
+            </div>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
