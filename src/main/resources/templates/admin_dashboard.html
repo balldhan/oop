@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: #f4f6fa;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: #2563eb;
+            color: #fff;
+            padding-top: 2rem;
+        }
+        .sidebar .nav-link {
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            background: #1e40af;
+            border-radius: .5rem;
+        }
+        .sidebar .bi {
+            margin-right: .5rem;
+        }
+        .content {
+            padding: 2rem;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Admin PPDB</a>
+            <div>
+                <span class="navbar-text me-3">Admin</span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column" id="adminMenu">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-content="dashboard" id="menu-dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-content="siswa" id="menu-siswa">
+                                <i class="bi bi-people"></i> Data Siswa
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-content="jalur" id="menu-jalur">
+                                <i class="bi bi-signpost"></i> Jalur
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-content="jurusan" id="menu-jurusan">
+                                <i class="bi bi-diagram-3"></i> Jurusan
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Main Content -->
+            <main class="col-md-10 ms-sm-auto content">
+                <!-- Dashboard Content -->
+                <div id="content-dashboard">
+                    <h2 class="mb-4">Selamat Datang, Admin!</h2>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-people fs-1 text-primary"></i>
+                                    <h5 class="card-title mt-2">Total Siswa</h5>
+                                    <p class="card-text fs-4" id="totalSiswa">-</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-clipboard-check fs-1 text-info"></i>
+                                    <h5 class="card-title mt-2">Status Pendaftaran</h5>
+                                    <p class="mb-1 text-success">Diterima: <span id="statusDiterima">-</span></p>
+                                    <p class="mb-1 text-danger">Ditolak: <span id="statusDitolak">-</span></p>
+                                    <p class="mb-0 text-warning">Menunggu: <span id="statusMenunggu">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-box-seam fs-1 text-secondary"></i>
+                                    <h5 class="card-title mt-2">Sisa Kuota</h5>
+                                    <p class="mb-1">Jalur: <span id="kuotaJalur">-</span></p>
+                                    <p class="mb-0">Jurusan: <span id="kuotaJurusan">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body">
+                                    <h5 class="card-title">Grafik Jalur Pendaftaran Terbanyak</h5>
+                                    <canvas id="chartJalur"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body">
+                                    <h5 class="card-title">Grafik Jurusan Paling Diminati</h5>
+                                    <canvas id="chartJurusan"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-muted">Silakan gunakan menu di samping untuk mengelola data PPDB.</p>
+                </div>
+                <!-- Data Siswa Content -->
+                <div id="content-siswa" style="display:none;">
+                    <h2 class="mb-4">Data Siswa</h2>
+                    <div class="mb-3 text-start">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahSiswa">
+                            <i class="bi bi-plus-circle"></i> Tambah Siswa
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Siswa</th>
+                                    <th>NISN</th>
+                                    <th>Jalur</th>
+                                    <th>Jurusan</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="siswaTableBody">
+                                <!-- Data siswa akan diisi via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal Tambah/Edit Siswa -->
+                <div class="modal fade" id="modalTambahSiswa" tabindex="-1" aria-labelledby="modalTambahSiswaLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <form id="formSiswa">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="modalTambahSiswaLabel">Tambah/Edit Siswa</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <input type="hidden" id="siswaId" name="id">
+                          <div class="row g-3">
+                            <div class="col-md-6">
+                              <label class="form-label">Nama Lengkap</label>
+                              <input type="text" class="form-control" id="namaLengkap" name="namaLengkap" required>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">NISN</label>
+                              <input type="text" class="form-control" id="nisn" name="nisn" required>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Jalur</label>
+                              <select class="form-select" id="jalurId" name="jalur" required>
+                                <option value="">Pilih Jalur</option>
+                              </select>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Jurusan</label>
+                              <select class="form-select" id="jurusanId" name="jurusan" required>
+                                <option value="">Pilih Jurusan</option>
+                              </select>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Status</label>
+                              <select class="form-select" id="status" name="status" required>
+                                <option value="MENUNGGU">Menunggu</option>
+                                <option value="DITERIMA">Diterima</option>
+                                <option value="DITOLAK">Ditolak</option>
+                              </select>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Asal Sekolah</label>
+                              <input type="text" class="form-control" id="asalSekolah" name="asalSekolah" required>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Jenis Kelamin</label>
+                              <select class="form-select" id="jenisKelamin" name="jenisKelamin" required>
+                                <option value="">Pilih</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                              </select>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Tempat Lahir</label>
+                              <input type="text" class="form-control" id="tempatLahir" name="tempatLahir" required>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label">Tanggal Lahir</label>
+                              <input type="date" class="form-control" id="tanggalLahir" name="tanggalLahir" required>
+                            </div>
+                            <div class="col-12">
+                              <label class="form-label">Alamat</label>
+                              <textarea class="form-control" id="alamat" name="alamat" rows="2" required></textarea>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                          <button type="submit" class="btn btn-success">Simpan</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div id="content-jalur" style="display:none;">
+                    <h2 class="mb-4">Data Jalur</h2>
+                    <div class="mb-3 text-start">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahJalur">
+                            <i class="bi bi-plus-circle"></i> Tambah Jalur
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Jalur</th>
+                                    <th>Kuota</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jalurTableBody">
+                                <!-- Data jalur via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Modal Tambah/Edit Jalur -->
+                <div class="modal fade" id="modalTambahJalur" tabindex="-1" aria-labelledby="modalTambahJalurLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form id="formJalur">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="modalTambahJalurLabel">Tambah/Edit Jalur</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <input type="hidden" id="jalurId" name="id">
+                          <div class="mb-3">
+                            <label class="form-label">Nama Jalur</label>
+                            <input type="text" class="form-control" id="jalurNama" name="nama" required>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Kuota</label>
+                            <input type="text" class="form-control" id="jalurKuota" name="kuota" required>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                          <button type="submit" class="btn btn-success">Simpan</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="content-jurusan" style="display:none;">
+                    <h2 class="mb-4">Data Jurusan</h2>
+                    <div class="mb-3 text-start">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahJurusan">
+                            <i class="bi bi-plus-circle"></i> Tambah Jurusan
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Jurusan</th>
+                                    <th>Kuota</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jurusanTableBody">
+                                <!-- Data jurusan via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Modal Tambah/Edit Jurusan -->
+                <div class="modal fade" id="modalTambahJurusan" tabindex="-1" aria-labelledby="modalTambahJurusanLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form id="formJurusan">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="modalTambahJurusanLabel">Tambah/Edit Jurusan</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <input type="hidden" id="jurusanId" name="id">
+                          <div class="mb-3">
+                            <label class="form-label">Nama Jurusan</label>
+                            <input type="text" class="form-control" id="jurusanNama" name="nama" required>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label">Kuota</label>
+                            <input type="text" class="form-control" id="jurusanKuota" name="kuota" required>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                          <button type="submit" class="btn btn-success">Simpan</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hapus seluruh blok berikut: -->
+                <!--
+                <div id="content-pendaftaran" style="display:none;">
+                    <h2 class="mb-4">Data Pendaftaran</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Siswa</th>
+                                    <th>NISN</th>
+                                    <th>Jalur</th>
+                                    <th>Jurusan</th>
+                                    <th>Dokumen</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendaftaranTableBody">
+                                <!-- Data pendaftaran via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                -->
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Sidebar menu click handler
+        document.querySelectorAll('#adminMenu .nav-link').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Remove active from all
+                document.querySelectorAll('#adminMenu .nav-link').forEach(function(l) {
+                    l.classList.remove('active');
+                });
+                // Add active to clicked
+                this.classList.add('active');
+                // Hide all content
+                ['dashboard', 'siswa', 'jalur', 'jurusan', 'pendaftaran'].forEach(function(section) {
+                    var div = document.getElementById('content-' + section);
+                    if (div) div.style.display = 'none';
+                });
+                // Show selected content
+                var contentId = 'content-' + this.getAttribute('data-content');
+                var contentDiv = document.getElementById(contentId);
+                if (contentDiv) {
+                    contentDiv.style.display = 'block';
+                }
+                // Loader data: hanya panggil loader sesuai menu
+                if (this.getAttribute('data-content') === 'siswa') loadSiswaTable();
+                else if (this.getAttribute('data-content') === 'jalur') {
+                    if (typeof loadJalurTable === 'function') loadJalurTable();
+                }
+                else if (this.getAttribute('data-content') === 'jurusan') {
+                    if (typeof loadJurusanTable === 'function') loadJurusanTable();
+                }
+                // Jangan panggil loader jalur/jurusan di menu lain!
+            });
+        });
+
+        // Tampilkan dashboard saat pertama kali load
+        window.addEventListener('DOMContentLoaded', function() {
+            ['dashboard', 'siswa', 'pendaftaran'].forEach(function(section) {
+                var div = document.getElementById('content-' + section);
+                if (div) div.style.display = (section === 'dashboard') ? 'block' : 'none';
+            });
+            updateDashboard();
+            setInterval(updateDashboard, 10000);
+        });
+
+        // Dummy data grafik jalur dan jurusan
+        const dataJalur = {
+            labels: ['Zonasi', 'Afirmasi', 'Prestasi', 'Pindahan Orang Tua'],
+            datasets: [{
+                label: 'Jumlah Pendaftar',
+                data: [12, 7, 15, 4], // Ganti dengan data dinamis jika ada
+                backgroundColor: [
+                    '#2563eb', '#22c55e', '#f59e42', '#f43f5e'
+                ]
+            }]
+        };
+        const dataJurusan = {
+            labels: ['IPA', 'IPS', 'Bahasa', 'Agama'],
+            datasets: [{
+                label: 'Jumlah Pilihan',
+                data: [18, 10, 5, 2], // Ganti dengan data dinamis jika ada
+                backgroundColor: [
+                    '#2563eb', '#22c55e', '#f59e42', '#f43f5e'
+                ]
+            }]
+        };
+
+        // Fungsi untuk fetch data dashboard secara otomatis
+        async function updateDashboard() {
+            try {
+                // Ganti endpoint berikut sesuai API backend-mu
+                const res = await fetch('/admin/api/dashboard');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                // Update angka dashboard
+                document.getElementById('totalSiswa').textContent = data.totalSiswa ?? '-';
+                document.getElementById('kuotaJalur').textContent = data.kuotaJalur ?? '-';
+                document.getElementById('kuotaJurusan').textContent = data.kuotaJurusan ?? '-';
+                document.getElementById('statusDiterima').textContent = data.statusDiterima ?? '-';
+                document.getElementById('statusDitolak').textContent = data.statusDitolak ?? '-';
+                document.getElementById('statusMenunggu').textContent = data.statusMenunggu ?? '-';
+
+                // Update chart jalur
+                if (window.chartJalurObj) window.chartJalurObj.destroy();
+                window.chartJalurObj = new Chart(document.getElementById('chartJalur'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.jalurLabels,
+                        datasets: [{
+                            label: 'Jumlah Pendaftar',
+                            data: data.jalurData,
+                            backgroundColor: ['#2563eb', '#22c55e', '#f59e42', '#f43f5e']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
+                // Update chart jurusan
+                if (window.chartJurusanObj) window.chartJurusanObj.destroy();
+                window.chartJurusanObj = new Chart(document.getElementById('chartJurusan'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.jurusanLabels,
+                        datasets: [{
+                            label: 'Jumlah Pilihan',
+                            data: data.jurusanData,
+                            backgroundColor: ['#2563eb', '#22c55e', '#f59e42', '#f43f5e']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            } catch (e) {
+                // Fallback jika gagal fetch
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            // Update otomatis setiap 10 detik
+            setInterval(updateDashboard, 10000);
+        });
+
+        // CRUD Siswa (AJAX)
+    async function loadSiswaTable() {
+        const res = await fetch('/admin/api/siswa');
+        const data = await res.json();
+        const tbody = document.getElementById('siswaTableBody');
+        tbody.innerHTML = '';
+        data.forEach(siswa => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${siswa.id}</td>
+                    <td>${siswa.namaLengkap}</td>
+                    <td>${siswa.nisn}</td>
+                    <td>${siswa.jalur ? siswa.jalur.nama : '-'}</td>
+                    <td>${siswa.jurusan ? siswa.jurusan.nama : '-'}</td>
+                    <td>
+                        <select class="form-select form-select-sm" onchange="verifikasiStatusSiswa('${siswa.id}', this.value)">
+                            <option value="MENUNGGU" ${siswa.status === 'MENUNGGU' ? 'selected' : ''}>Menunggu</option>
+                            <option value="DITERIMA" ${siswa.status === 'DITERIMA' ? 'selected' : ''}>Diterima</option>
+                            <option value="DITOLAK" ${siswa.status === 'DITOLAK' ? 'selected' : ''}>Ditolak</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editSiswa('${siswa.id}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="hapusSiswa('${siswa.id}')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // Verifikasi status siswa
+    function verifikasiStatusSiswa(id, status) {
+        fetch(`/admin/api/siswa/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: status })
+        }).then(() => loadSiswaTable());
+    }
+
+    // Load options for Jalur and Jurusan in modal
+    async function loadJalurJurusanOptions(selectedJalurId, selectedJurusanId) {
+        const jalurRes = await fetch('/admin/api/jalur');
+        const jurusanRes = await fetch('/admin/api/jurusan');
+        const jalurList = await jalurRes.json();
+        const jurusanList = await jurusanRes.json();
+        const jalurSelect = document.getElementById('jalurId');
+        const jurusanSelect = document.getElementById('jurusanId');
+        jalurSelect.innerHTML = '<option value="">Pilih Jalur</option>';
+        jurusanSelect.innerHTML = '<option value="">Pilih Jurusan</option>';
+        jalurList.forEach(jalur => {
+            jalurSelect.innerHTML += `<option value="${jalur.id}" ${jalur.id == selectedJalurId ? 'selected' : ''}>${jalur.nama}</option>`;
+        });
+        jurusanList.forEach(jurusan => {
+            jurusanSelect.innerHTML += `<option value="${jurusan.id}" ${jurusan.id == selectedJurusanId ? 'selected' : ''}>${jurusan.nama}</option>`;
+        });
+    }
+
+    // Show modal for tambah/edit
+    function editSiswa(id) {
+        fetch(`/admin/api/siswa/${id}`)
+            .then(res => res.json())
+            .then(siswa => {
+                document.getElementById('siswaId').value = siswa.id;
+                document.getElementById('namaLengkap').value = siswa.namaLengkap;
+                document.getElementById('nisn').value = siswa.nisn;
+                document.getElementById('asalSekolah').value = siswa.asalSekolah;
+                document.getElementById('jenisKelamin').value = siswa.jenisKelamin;
+                document.getElementById('tempatLahir').value = siswa.tempatLahir;
+                document.getElementById('tanggalLahir').value = siswa.tanggalLahir;
+                document.getElementById('alamat').value = siswa.alamat;
+                document.getElementById('status').value = siswa.status || 'MENUNGGU';
+                loadJalurJurusanOptions(siswa.jalur ? siswa.jalur.id : '', siswa.jurusan ? siswa.jurusan.id : '');
+                new bootstrap.Modal(document.getElementById('modalTambahSiswa')).show();
+            });
+    }
+
+    // Tambah Siswa (reset modal)
+    document.querySelector('[data-bs-target="#modalTambahSiswa"]').addEventListener('click', function() {
+        document.getElementById('formSiswa').reset();
+        document.getElementById('siswaId').value = '';
+        loadJalurJurusanOptions('', '');
+    });
+
+    // Hapus siswa
+    function hapusSiswa(id) {
+        if (confirm('Yakin ingin menghapus siswa ini?')) {
+            fetch(`/admin/api/siswa/${id}`, { method: 'DELETE' })
+                .then(() => loadSiswaTable());
+        }
+    }
+
+    // Submit tambah/edit siswa
+    document.getElementById('formSiswa').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('siswaId').value;
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/admin/api/siswa/${id}` : '/admin/api/siswa';
+        const siswa = {
+            namaLengkap: document.getElementById('namaLengkap').value,
+            nisn: document.getElementById('nisn').value,
+            asalSekolah: document.getElementById('asalSekolah').value,
+            jenisKelamin: document.getElementById('jenisKelamin').value,
+            tempatLahir: document.getElementById('tempatLahir').value,
+            tanggalLahir: document.getElementById('tanggalLahir').value,
+            alamat: document.getElementById('alamat').value,
+            status: document.getElementById('status').value,
+            jalur: { id: document.getElementById('jalurId').value },
+            jurusan: { id: document.getElementById('jurusanId').value }
+        };
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(siswa)
+        })
+        .then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('modalTambahSiswa')).hide();
+            loadSiswaTable();
+            this.reset();
+            document.getElementById('siswaId').value = '';
+        });
+    });
+
+    // Reset form saat modal ditutup
+    document.getElementById('modalTambahSiswa').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formSiswa').reset();
+        document.getElementById('siswaId').value = '';
+    });
+
+    // Load data siswa saat menu Data Siswa diklik
+    document.getElementById('menu-siswa').addEventListener('click', loadSiswaTable);
+
+    // CRUD Jalur (AJAX)
+    async function loadJalurTable() {
+        const res = await fetch('/admin/api/jalur');
+        const data = await res.json();
+        const tbody = document.getElementById('jalurTableBody');
+        tbody.innerHTML = '';
+        data.forEach(jalur => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${jalur.id}</td>
+                    <td>${jalur.nama}</td>
+                    <td>${jalur.kuota}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editJalur(${jalur.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="hapusJalur(${jalur.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function editJalur(id) {
+        fetch(`/admin/api/jalur/${id}`)
+            .then(res => res.json())
+            .then(jalur => {
+                document.getElementById('jalurId').value = jalur.id;
+                document.getElementById('jalurNama').value = jalur.nama;
+                document.getElementById('jalurKuota').value = jalur.kuota;
+                new bootstrap.Modal(document.getElementById('modalTambahJalur')).show();
+            });
+    }
+
+    function hapusJalur(id) {
+        if (confirm('Yakin ingin menghapus jalur ini?')) {
+            fetch(`/admin/api/jalur/${id}`, { method: 'DELETE' })
+                .then(() => loadJalurTable());
+        }
+    }
+
+    document.getElementById('formJalur').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('jalurId').value;
+        const method = id ? 'PUT' : 'POST';
+        if (method === 'PUT' && (!id || id === 'undefined')) {
+            alert('ID jalur tidak valid. Silakan ulangi proses edit.');
+            return;
+        }
+        const url = id ? `/admin/api/jalur/${id}` : '/admin/api/jalur';
+        const kuota = document.getElementById('jalurKuota').value;
+        const jalur = {
+            nama: document.getElementById('jalurNama').value,
+            kuota: kuota // biarkan string, jangan parseInt
+        };
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(jalur)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Gagal menyimpan data');
+            return response.json();
+        })
+        .then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('modalTambahJalur')).hide();
+            setTimeout(() => loadJalurTable(), 300);
+            this.reset();
+            document.getElementById('jalurId').value = '';
+        })
+        .catch(() => alert('Gagal menyimpan data jalur!'));
+    });
+
+    document.getElementById('modalTambahJalur').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formJalur').reset();
+        document.getElementById('jalurId').value = '';
+    });
+
+    document.getElementById('menu-jalur').addEventListener('click', loadJalurTable);
+
+    // CRUD Jurusan (AJAX)
+    async function loadJurusanTable() {
+        const res = await fetch('/admin/api/jurusan');
+        const data = await res.json();
+        const tbody = document.getElementById('jurusanTableBody');
+        tbody.innerHTML = '';
+        data.forEach(jurusan => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${jurusan.id}</td>
+                    <td>${jurusan.nama}</td>
+                    <td>${jurusan.kuota}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="editJurusan(${jurusan.id})"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="hapusJurusan(${jurusan.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function editJurusan(id) {
+        fetch(`/admin/api/jurusan/${id}`)
+            .then(res => res.json())
+            .then(jurusan => {
+                document.getElementById('jurusanId').value = jurusan.id;
+                document.getElementById('jurusanNama').value = jurusan.nama;
+                document.getElementById('jurusanKuota').value = jurusan.kuota;
+                new bootstrap.Modal(document.getElementById('modalTambahJurusan')).show();
+            });
+    }
+
+    function hapusJurusan(id) {
+        if (confirm('Yakin ingin menghapus jurusan ini?')) {
+            fetch(`/admin/api/jurusan/${id}`, { method: 'DELETE' })
+                .then(() => loadJurusanTable());
+        }
+    }
+
+    document.getElementById('formJurusan').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('jurusanId').value;
+        const method = id ? 'PUT' : 'POST';
+        if (method === 'PUT' && (!id || id === 'undefined')) {
+            alert('ID jurusan tidak valid. Silakan ulangi proses edit.');
+            return;
+        }
+        const url = id ? `/admin/api/jurusan/${id}` : '/admin/api/jurusan';
+        const kuota = document.getElementById('jurusanKuota').value;
+        const jurusan = {
+            nama: document.getElementById('jurusanNama').value,
+            kuota: kuota // biarkan string, jangan parseInt
+        };
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(jurusan)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Gagal menyimpan data');
+            return response.json();
+        })
+        .then(() => {
+            bootstrap.Modal.getInstance(document.getElementById('modalTambahJurusan')).hide();
+            setTimeout(() => loadJurusanTable(), 300);
+            this.reset();
+            document.getElementById('jurusanId').value = '';
+        })
+        .catch(() => alert('Gagal menyimpan data jurusan!'));
+    });
+
+    document.getElementById('modalTambahJurusan').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('formJurusan').reset();
+        document.getElementById('jurusanId').value = '';
+    });
+
+    document.getElementById('menu-jurusan').addEventListener('click', loadJurusanTable);
+
+    // Hapus seluruh fungsi/JS terkait pendaftaran:
+    // - loadPendaftaranTable
+    // - editPendaftaran
+    // - hapusPendaftaran
+    // - formPendaftaran submit
+    // - modalTambahPendaftaran event
+    // - verifikasiStatus
+    // - dan event menu-pendaftaran
+    </script>
+</body>
+</html>

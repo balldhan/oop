@@ -14,19 +14,14 @@
 
             <form th:action="@{/register}" method="post">
                 <div class="mb-3">
-                    <input type="text" name="username" placeholder="Username" required class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <input type="email" name="email" placeholder="Email" required class="form-control" />
+                    <input type="text" name="username" placeholder="Username (gunakan NISN jika memungkinkan)" required class="form-control" />
                 </div>
                 <div class="mb-3">
                     <input type="password" name="password" placeholder="Password" required class="form-control" />
                 </div>
-
-                <!-- Tidak ada pilihan role, karena hanya untuk siswa -->
-                
                 <button type="submit" class="btn btn-primary w-100">Daftar</button>
             </form>
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
 
             <p class="text-center mt-3">
                 Sudah punya akun? <a href="/login" class="link-primary">Login di sini</a>

@@ -1,34 +1,22 @@
 package com.example.sippdb.controller;
 
-import jakarta.servlet.http.HttpSession;
+import com.example.sippdb.model.Role;
+import com.example.sippdb.model.User;
+import com.example.sippdb.repository.RoleRepository;
+import com.example.sippdb.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class AuthController {
 
-    @GetMapping("/admin/dashboard")
-    public String adminDashboard(HttpSession session, Model model) {
-        String username = (String) session.getAttribute("username");
-        model.addAttribute("username", username);
-        return "admin/dashboard";
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    @GetMapping("/admin/dashboard/fragment")
-    public String adminDashboardFragment(HttpSession session, Model model) {
-        String username = (String) session.getAttribute("username");
-        model.addAttribute("username", username);
-        // Tambahkan data statistik ke model jika perlu
-        return "admin/fragments/dashboard :: content";
-    }
-
-    @GetMapping("/siswa/profil")
-    public String siswaProfil(HttpSession session, Model model) {
-        String username = (String) session.getAttribute("username");
-        model.addAttribute("username", username);
-        return "siswa/profil";
-    }
+    @Autowired
+    private RoleRepository roleRepository;
 
     @GetMapping("/home")
     public String home() {
@@ -40,18 +28,50 @@ public class AuthController {
         return "login";
     }
 
-    @GetMapping("/siswa/dashboard")
-    public String siswaDashboard(HttpSession session, Model model) {
-        String username = (String) session.getAttribute("username");
-        model.addAttribute("username", username);
-        return "siswa/dashboard";
+    @PostMapping("/login")
+    public String doLogin(@RequestParam String username, @RequestParam String password, Model model) {
+        User user = userRepository.findByUsername(username);
+        if (user != null && user.getPassword().equals(password)) {
+            // Jangan set model.addAttribute("username", ...) di sini, karena setelah redirect model tidak terbawa
+            if (user.getRole() != null && user.getRole().getName().name().equalsIgnoreCase("ADMIN")) {
+                return "redirect:/admin/dashboard";
+            } else if (user.getRole() != null && user.getRole().getName().name().equalsIgnoreCase("SISWA")) {
+                return "redirect:/siswa/dashboard";
+            } else {
+                return "redirect:/dashboard";
+            }
+        }
+        model.addAttribute("error", "Username atau password salah");
+        return "login";
     }
 
-    @GetMapping("/siswa/pendaftaran")
-    public String siswaPendaftaran(HttpSession session, Model model) {
-        String username = (String) session.getAttribute("username");
-        model.addAttribute("username", username);
-        return "siswa/pendaftaran";
+    @GetMapping("/register")
+    public String registerForm() {
+        return "register";
     }
 
+    @PostMapping("/register")
+    public String register(
+            @RequestParam String username,
+            @RequestParam String password,
+            Model model
+    ) {
+        if (userRepository.findByUsername(username) != null) {
+            model.addAttribute("error", "Username sudah digunakan");
+            return "register";
+        }
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        Role siswaRole = roleRepository.findByName(Role.RoleName.SISWA);
+        user.setRole(siswaRole);
+        userRepository.save(user);
+
+        return "redirect:/login";
+    }
+
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/home";
+    }
 }
