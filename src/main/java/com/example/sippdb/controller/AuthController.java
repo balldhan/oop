@@ -4,6 +4,7 @@ import com.example.sippdb.model.Role;
 import com.example.sippdb.model.User;
 import com.example.sippdb.repository.RoleRepository;
 import com.example.sippdb.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,10 +30,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String doLogin(@RequestParam String username, @RequestParam String password, Model model) {
+    public String doLogin(@RequestParam String username, @RequestParam String password, Model model, HttpSession session) {
         User user = userRepository.findByUsername(username);
         if (user != null && user.getPassword().equals(password)) {
-            // Jangan set model.addAttribute("username", ...) di sini, karena setelah redirect model tidak terbawa
+            // Simpan username ke session agar bisa diakses di controller lain
+            session.setAttribute("username", user.getUsername());
             if (user.getRole() != null && user.getRole().getName().name().equalsIgnoreCase("ADMIN")) {
                 return "redirect:/admin/dashboard";
             } else if (user.getRole() != null && user.getRole().getName().name().equalsIgnoreCase("SISWA")) {

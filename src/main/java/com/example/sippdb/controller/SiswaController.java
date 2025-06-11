@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
@@ -24,34 +25,34 @@ public class SiswaController {
     private JurusanRepository jurusanRepository;
 
     @GetMapping("/siswa/dashboard")
-    public String dashboardSiswa(Authentication authentication, Model model) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public String dashboardSiswa(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
             return "redirect:/login";
         }
-        model.addAttribute("username", authentication.getName());
+        model.addAttribute("username", username);
         return "siswa_dashboard";
     }
 
     @GetMapping("/siswa/profil")
-    public String profil(Authentication authentication, Model model) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public String profil(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
             return "redirect:/login";
         }
-        String username = authentication.getName();
         Siswa siswa = siswaRepository.findByNisn(username);
         model.addAttribute("siswa", siswa);
         return "siswa_profil";
     }
 
     @GetMapping("/siswa/pendaftaran")
-    public String pendaftaran(Authentication authentication, Model model) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public String pendaftaran(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
             return "redirect:/login";
         }
-        String username = authentication.getName();
         Siswa siswa = siswaRepository.findByNisn(username);
         if (siswa != null) {
-            // Sudah pernah daftar, redirect ke status
             return "redirect:/siswa/status";
         }
         model.addAttribute("jalurList", jalurRepository.findAll());
@@ -61,7 +62,7 @@ public class SiswaController {
 
     @PostMapping("/siswa/pendaftaran")
     public String prosesPendaftaran(
-            Authentication authentication,
+            HttpSession session,
             @RequestParam String namaLengkap,
             @RequestParam String asalSekolah,
             @RequestParam String jenisKelamin,
@@ -73,10 +74,10 @@ public class SiswaController {
             @RequestParam(required = false) MultipartFile dokumen,
             Model model
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
             return "redirect:/login";
         }
-        String username = authentication.getName();
         if (siswaRepository.findByNisn(username) != null) {
             return "redirect:/siswa/status";
         }
@@ -116,11 +117,11 @@ public class SiswaController {
     }
 
     @GetMapping("/siswa/status")
-    public String status(Authentication authentication, Model model) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+    public String status(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
             return "redirect:/login";
         }
-        String username = authentication.getName();
         Siswa siswa = siswaRepository.findByNisn(username);
         model.addAttribute("siswa", siswa);
         return "siswa_status";

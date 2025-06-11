@@ -14,7 +14,7 @@
         <div th:if="${siswa != null}">
             <ul class="list-group mb-3">
                 <li class="list-group-item"><strong>Nama:</strong> <span th:text="${siswa.namaLengkap}">Nama Siswa</span></li>
-                <li class="list-group-item"><strong>NISN:</strong> <span th:text="${siswa.nisn}">NISN</span></li>
+                <li class="list-group-item"><strong>Username:</strong> <span th:text="${siswa.nisn}">Username</span></li>
                 <li class="list-group-item"><strong>Status:</strong> <span th:text="${siswa.status}">Status</span></li>
                 <li class="list-group-item"><strong>Jalur:</strong> <span th:text="${siswa.jalur != null ? siswa.jalur.nama : '-'}">Jalur</span></li>
                 <li class="list-group-item"><strong>Jurusan:</strong> <span th:text="${siswa.jurusan != null ? siswa.jurusan.nama : '-'}">Jurusan</span></li>
